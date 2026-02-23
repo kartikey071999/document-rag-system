@@ -1,0 +1,186 @@
+[project]
+name = "document-rag-system"
+version = "0.1.0"
+description = "Django web application with AI chat interface powered by Google Gemini API"
+requires-python = ">=3.11"
+dependencies = [
+    "black>=26.3.1",
+    "Django>=5.0.0,<6.0.0",
+    "google-genai>=0.1.0",
+    "python-dotenv>=1.0.0",
+    "ruff>=0.15.8",
+]
+
+[project.optional-dependencies]
+# Optional AI provider SDKs
+openai = ["openai>=1.0.0"]
+claude = ["anthropic>=0.18.0"]
+all-providers = [
+    "openai>=1.0.0",
+    "anthropic>=0.18.0",
+]
+
+# Development dependencies
+dev = [
+    # Linting and formatting
+    "ruff>=0.9.0",
+    "black>=24.0.0",
+    # Testing
+    "pytest>=8.0.0",
+    "pytest-django>=4.8.0",
+    "pytest-cov>=6.0.0",
+    # Security
+    "bandit>=1.8.0",
+    "safety>=3.0.0",
+    # Type checking
+    "mypy>=1.8.0",
+    "django-stubs>=5.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["chat*", "config*"]
+exclude = ["tests*", "docs*"]
+
+[tool.ruff]
+# Exclude common directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "__pycache__",
+    "migrations",
+    "*.egg-info",
+    "build",
+    "dist",
+]
+
+# Line length to match black
+line-length = 88
+
+# Python version
+target-version = "py311"
+
+[tool.ruff.lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "DJ",  # flake8-django
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "DJ001", # avoid using null=True on string-based fields
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore import order in __init__.py files
+"__init__.py" = ["F401", "I001"]
+# Ignore some checks in settings.py
+"config/settings.py" = ["F405", "E501"]
+# Ignore some checks in migrations
+"*/migrations/*.py" = ["E501"]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Like black, respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Like black, automatically detect the appropriate line ending
+line-ending = "auto"
+
+[tool.black]
+line-length = 88
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.venv
+  | venv
+  | env
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "--cov=chat",
+    "--cov=config",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+testpaths = ["chat", "config"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["chat", "config"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+    "manage.py",
+    "*/wsgi.py",
+    "*/asgi.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[[tool.mypy.overrides]]
+module = [
+    "google.*",
+]
+ignore_missing_imports = true

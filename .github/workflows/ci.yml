@@ -1,0 +1,175 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev]"
+      
+      - name: Run ruff check
+        run: ruff check .
+      
+      - name: Run ruff format check
+        run: ruff format --check .
+      
+      - name: Run black check
+        run: black --check .
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev]"
+      
+      - name: Run Django checks
+        run: python manage.py check
+      
+      - name: Run migrations check
+        run: python manage.py makemigrations --check --dry-run
+      
+      - name: Run tests
+        run: pytest --cov=. --cov-report=xml --cov-report=term
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  structure-check:
+    name: Check Project Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check required files exist
+        run: |
+          echo "Checking project structure..."
+          
+          # Check for essential files
+          test -f manage.py || { echo "❌ manage.py not found"; exit 1; }
+          test -f pyproject.toml || { echo "❌ pyproject.toml not found"; exit 1; }
+          test -f .env.example || { echo "❌ .env.example not found"; exit 1; }
+          test -f README.md || { echo "❌ README.md not found"; exit 1; }
+          
+          # Check for essential directories
+          test -d config || { echo "❌ config/ directory not found"; exit 1; }
+          test -d chat || { echo "❌ chat/ directory not found"; exit 1; }
+          test -d chat/services || { echo "❌ chat/services/ directory not found"; exit 1; }
+          test -d chat/templates || { echo "❌ chat/templates/ directory not found"; exit 1; }
+          
+          # Check for Django files
+          test -f config/settings.py || { echo "❌ config/settings.py not found"; exit 1; }
+          test -f config/urls.py || { echo "❌ config/urls.py not found"; exit 1; }
+          test -f chat/views.py || { echo "❌ chat/views.py not found"; exit 1; }
+          test -f chat/urls.py || { echo "❌ chat/urls.py not found"; exit 1; }
+          test -f chat/services/gemini_service.py || { echo "❌ chat/services/gemini_service.py not found"; exit 1; }
+          
+          echo "✅ All required files and directories exist"
+      
+      - name: Verify service layer separation
+        run: |
+          echo "Verifying service layer architecture..."
+          
+          # Check that service imports exist in views
+          if ! grep -q "from.*services" chat/views.py; then
+            echo "❌ Views should import from services layer"
+            exit 1
+          fi
+          
+          # Check that GeminiService exists
+          if ! grep -q "class GeminiService" chat/services/gemini_service.py; then
+            echo "❌ GeminiService class not found in service layer"
+            exit 1
+          fi
+          
+          echo "✅ Service layer architecture verified"
+      
+      - name: Check environment variable usage
+        run: |
+          echo "Checking environment variable configuration..."
+          
+          # Check that settings uses environment variables
+          if ! grep -q "load_dotenv" config/settings.py; then
+            echo "❌ settings.py should use load_dotenv()"
+            exit 1
+          fi
+          
+          if ! grep -q "GEMINI_API_KEY.*getenv" config/settings.py; then
+            echo "❌ GEMINI_API_KEY should be loaded from environment"
+            exit 1
+          fi
+          
+          echo "✅ Environment variable configuration verified"
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev]"
+      
+      - name: Run safety check
+        run: safety check --json || true
+      
+      - name: Run bandit security scan
+        run: bandit -r . -x ./venv,./env,./.venv -f json -o bandit-report.json || true
+      
+      - name: Upload bandit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-security-report
+          path: bandit-report.json
