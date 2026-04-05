@@ -6,25 +6,18 @@ from app.providers import AIServiceFactory
 
 
 def chat_view(request):
-    """Render the main chat interface."""
     return render(request, "chat/chat.html")
 
 
 @require_http_methods(["POST"])
 def send_message(request):
-    """
-    Handle chat message submission.
-
-    Expects POST data with 'message' field.
-    Returns JSON response with AI's reply.
-    """
+    """Handle chat message submission and return AI response as JSON."""
     user_message = request.POST.get("message", "").strip()
 
     if not user_message:
         return JsonResponse({"error": "Message cannot be empty"}, status=400)
 
     try:
-        # Create AI service using factory - provider determined by settings
         ai_service = AIServiceFactory.create_service()
         ai_response = ai_service.get_chat_response(user_message)
 

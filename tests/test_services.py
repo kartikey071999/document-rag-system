@@ -7,10 +7,8 @@ from app.providers import AIServiceFactory, BaseAIService, GeminiService
 
 
 class TestAIServiceFactory:
-    """Tests for AIServiceFactory."""
 
     def test_factory_creates_default_service(self):
-        """Test that factory creates default service from settings."""
         with patch.object(settings, "AI_PROVIDER", "gemini"):
             with patch.object(settings, "GEMINI_API_KEY", "test-key"):
                 with patch("app.providers.gemini.genai.Client"):
@@ -18,7 +16,6 @@ class TestAIServiceFactory:
                     assert isinstance(service, GeminiService)
 
     def test_factory_creates_specific_provider(self):
-        """Test that factory creates specific provider."""
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
             with patch("app.providers.gemini.genai.Client"):
                 service = AIServiceFactory.create_service(provider="gemini")
@@ -26,13 +23,11 @@ class TestAIServiceFactory:
                 assert service.get_provider_name() == "Gemini"
 
     def test_factory_raises_on_invalid_provider(self):
-        """Test that factory raises error for invalid provider."""
         with pytest.raises(ValueError) as exc_info:
             AIServiceFactory.create_service(provider="invalid")
         assert "Unsupported AI provider" in str(exc_info.value)
 
     def test_factory_get_available_providers(self):
-        """Test that factory returns list of available providers."""
         providers = AIServiceFactory.get_available_providers()
         assert "gemini" in providers
         assert "openai" in providers
@@ -41,7 +36,6 @@ class TestAIServiceFactory:
         assert "grok" in providers
 
     def test_factory_register_custom_provider(self):
-        """Test that factory can register custom provider."""
 
         class CustomService(BaseAIService):
             def get_chat_response(self, user_message: str) -> str:
@@ -55,10 +49,8 @@ class TestAIServiceFactory:
 
 
 class TestGeminiService:
-    """Tests for GeminiService."""
 
     def test_service_initialization_without_api_key(self):
-        """Test that service raises error without API key."""
         with patch.object(settings, "GEMINI_API_KEY", ""):
             with pytest.raises(ValueError) as exc_info:
                 GeminiService()
@@ -66,15 +58,12 @@ class TestGeminiService:
 
     @patch("app.providers.gemini.genai.Client")
     def test_service_initialization_with_api_key(self, mock_client):
-        """Test that service initializes with valid API key."""
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
             GeminiService()
             mock_client.assert_called_once_with(api_key="test-key")
 
     @patch("app.providers.gemini.genai.Client")
     def test_get_chat_response(self, mock_client):
-        """Test that get_chat_response returns AI response."""
-        # Setup mock
         mock_response = Mock()
         mock_response.text = "Hello! How can I help you?"
         mock_client_instance = Mock()
@@ -90,7 +79,6 @@ class TestGeminiService:
 
     @patch("app.providers.gemini.genai.Client")
     def test_get_provider_name(self, mock_client):
-        """Test that get_provider_name returns correct name."""
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
             service = GeminiService()
             assert service.get_provider_name() == "Gemini"
