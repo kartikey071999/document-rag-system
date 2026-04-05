@@ -8,5 +8,5 @@ class BaseAIService(ABC):
         pass
 
     @abstractmethod
-    def get_provider_name(self) -> str:
+    def get_provider_name(self):
         pass
