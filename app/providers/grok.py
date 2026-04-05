@@ -1,34 +1,28 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from django.conf import settings
+from openai import OpenAI
 
 from .base import BaseAIService
 from .enums import AIProvider, GrokModel
 
-if TYPE_CHECKING:
-    from openai import OpenAI
-
 
 class GrokService(BaseAIService):
 
-    def __init__(self, api_key: str = None, model: GrokModel = GrokModel.GROK_BETA):
-        self.api_key = api_key or getattr(settings, "XAI_API_KEY", None)
-        if not self.api_key:
+    def __init__(self, model: GrokModel = GrokModel.GROK_BETA):
+        if not getattr(settings, "XAI_API_KEY", None):
             raise ValueError(
-                "XAI_API_KEY not found. Please configure it via environment variables or pass it directly."
+                "XAI_API_KEY not found. Please configure it via environment variables."
             )
         self.model = model
+        self.client = OpenAI(api_key=settings.XAI_API_KEY, base_url="https://api.x.ai/v1")
 
-        from openai import OpenAI
-
-        self.client = OpenAI(api_key=self.api_key, base_url="https://api.x.ai/v1")
-
-    def get_chat_response(self, user_message: str) -> str:
+    def get_chat_response(self, user_message: str, system_prompt: str = None) -> str:
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_message})
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=[{"role": "user", "content": user_message}],
+            messages=messages,
         )
         return response.choices[0].message.content
 

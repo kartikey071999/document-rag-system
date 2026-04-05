@@ -41,3 +41,12 @@ class PerplexityModel(StrEnum):
     SONAR_SMALL = "llama-3.1-sonar-small-128k-online"
     SONAR_LARGE = "llama-3.1-sonar-large-128k-online"
     SONAR_HUGE = "llama-3.1-sonar-huge-128k-online"
+
+
+PROVIDER_MODELS: dict[AIProvider, type[StrEnum]] = {
+    AIProvider.GEMINI: GeminiModel,
+    AIProvider.OPENAI: OpenAIModel,
+    AIProvider.CLAUDE: ClaudeModel,
+    AIProvider.GROK: GrokModel,
+    AIProvider.PERPLEXITY: PerplexityModel,
+}
