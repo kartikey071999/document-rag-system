@@ -542,9 +542,11 @@ name = "document-rag-system"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "anthropic" },
     { name = "black" },
     { name = "django" },
     { name = "google-genai" },
+    { name = "openai" },
     { name = "pytest" },
     { name = "python-dotenv" },
     { name = "ruff" },
@@ -575,6 +577,7 @@ openai = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anthropic", specifier = ">=0.86.0" },
     { name = "anthropic", marker = "extra == 'all-providers'", specifier = ">=0.18.0" },
     { name = "anthropic", marker = "extra == 'claude'", specifier = ">=0.18.0" },
     { name = "bandit", marker = "extra == 'dev'", specifier = ">=1.8.0" },
@@ -584,6 +587,7 @@ requires-dist = [
     { name = "django-stubs", marker = "extra == 'dev'", specifier = ">=5.0.0" },
     { name = "google-genai", specifier = ">=0.1.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.8.0" },
+    { name = "openai", specifier = ">=2.30.0" },
     { name = "openai", marker = "extra == 'all-providers'", specifier = ">=1.0.0" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0.0" },
     { name = "pytest", specifier = ">=9.0.2" },

@@ -20,7 +20,7 @@ class AIServiceFactory:
     }
 
     @classmethod
-    def create_service(cls, provider: AIProvider | str = None, api_key: str = None) -> BaseAIService:
+    def create_service(cls, provider: AIProvider | str = None, model: str = None) -> BaseAIService:
         """Create and return an AI service instance for the given provider."""
         if provider is None:
             provider = getattr(settings, "AI_PROVIDER", AIProvider.GEMINI)
@@ -39,7 +39,10 @@ class AIServiceFactory:
             )
 
         service_class = cls._services[provider]
-        return service_class(api_key=api_key)
+        kwargs = {}
+        if model:
+            kwargs["model"] = model
+        return service_class(**kwargs)
 
     @classmethod
     def get_available_providers(cls) -> list[AIProvider]:

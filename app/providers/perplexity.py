@@ -1,36 +1,30 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from django.conf import settings
+from openai import OpenAI
 
 from .base import BaseAIService
 from .enums import AIProvider, PerplexityModel
 
-if TYPE_CHECKING:
-    from openai import OpenAI
-
 
 class PerplexityService(BaseAIService):
 
-    def __init__(self, api_key: str = None, model: PerplexityModel = PerplexityModel.SONAR_SMALL):
-        self.api_key = api_key or getattr(settings, "PERPLEXITY_API_KEY", None)
-        if not self.api_key:
+    def __init__(self, model: PerplexityModel = PerplexityModel.SONAR_SMALL):
+        if not getattr(settings, "PERPLEXITY_API_KEY", None):
             raise ValueError(
-                "PERPLEXITY_API_KEY not found. Please configure it via environment variables or pass it directly."
+                "PERPLEXITY_API_KEY not found. Please configure it via environment variables."
             )
         self.model = model
-
-        from openai import OpenAI
-
         self.client = OpenAI(
-            api_key=self.api_key, base_url="https://api.perplexity.ai"
+            api_key=settings.PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai"
         )
 
-    def get_chat_response(self, user_message: str) -> str:
+    def get_chat_response(self, user_message: str, system_prompt: str = None) -> str:
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_message})
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=[{"role": "user", "content": user_message}],
+            messages=messages,
         )
         return response.choices[0].message.content
 
