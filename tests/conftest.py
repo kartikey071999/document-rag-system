@@ -3,10 +3,8 @@ from pathlib import Path
 
 import django
 
-# Set up Django settings for pytest
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-# Create a test .env file if it doesn't exist
 base_dir = Path(__file__).resolve().parent.parent
 env_file = base_dir / ".env"
 if not env_file.exists():
