@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
-from app.providers import AIServiceFactory
+from app.api.services.chat import ChatService
 
 
 def chat_view(request):
@@ -18,15 +18,8 @@ def send_message(request):
         return JsonResponse({"error": "Message cannot be empty"}, status=400)
 
     try:
-        ai_service = AIServiceFactory.create_service()
-        ai_response = ai_service.get_chat_response(user_message)
-
-        return JsonResponse(
-            {
-                "user_message": user_message,
-                "ai_response": ai_response,
-                "provider": ai_service.get_provider_name(),
-            }
-        )
+        chat_service = ChatService()
+        result = chat_service.send_message(user_message)
+        return JsonResponse(result)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)

@@ -3,13 +3,13 @@ from unittest.mock import Mock, patch
 import pytest
 from django.conf import settings
 
-from app.providers import AIServiceFactory, BaseAIService, GeminiService
+from app.providers import AIProvider, AIServiceFactory, BaseAIService, GeminiService
 
 
 class TestAIServiceFactory:
 
     def test_factory_creates_default_service(self):
-        with patch.object(settings, "AI_PROVIDER", "gemini"):
+        with patch.object(settings, "AI_PROVIDER", AIProvider.GEMINI):
             with patch.object(settings, "GEMINI_API_KEY", "test-key"):
                 with patch("app.providers.gemini.genai.Client"):
                     service = AIServiceFactory.create_service()
@@ -18,9 +18,9 @@ class TestAIServiceFactory:
     def test_factory_creates_specific_provider(self):
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
             with patch("app.providers.gemini.genai.Client"):
-                service = AIServiceFactory.create_service(provider="gemini")
+                service = AIServiceFactory.create_service(provider=AIProvider.GEMINI)
                 assert isinstance(service, GeminiService)
-                assert service.get_provider_name() == "Gemini"
+                assert service.get_provider_name() == AIProvider.GEMINI
 
     def test_factory_raises_on_invalid_provider(self):
         with pytest.raises(ValueError) as exc_info:
@@ -29,11 +29,11 @@ class TestAIServiceFactory:
 
     def test_factory_get_available_providers(self):
         providers = AIServiceFactory.get_available_providers()
-        assert "gemini" in providers
-        assert "openai" in providers
-        assert "claude" in providers
-        assert "perplexity" in providers
-        assert "grok" in providers
+        assert AIProvider.GEMINI in providers
+        assert AIProvider.OPENAI in providers
+        assert AIProvider.CLAUDE in providers
+        assert AIProvider.PERPLEXITY in providers
+        assert AIProvider.GROK in providers
 
     def test_factory_register_custom_provider(self):
 
@@ -81,4 +81,4 @@ class TestGeminiService:
     def test_get_provider_name(self, mock_client):
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
             service = GeminiService()
-            assert service.get_provider_name() == "Gemini"
+            assert service.get_provider_name() == AIProvider.GEMINI
