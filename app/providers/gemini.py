@@ -1,7 +1,7 @@
 from django.conf import settings
 from google import genai
 
-from .base_service import BaseAIService
+from .base import BaseAIService
 
 
 class GeminiService(BaseAIService):

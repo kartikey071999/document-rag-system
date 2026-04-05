@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 from django.conf import settings
 
-from chat.services import AIServiceFactory, BaseAIService, GeminiService
+from app.providers import AIServiceFactory, BaseAIService, GeminiService
 
 
 class TestAIServiceFactory:
@@ -13,14 +13,14 @@ class TestAIServiceFactory:
         """Test that factory creates default service from settings."""
         with patch.object(settings, "AI_PROVIDER", "gemini"):
             with patch.object(settings, "GEMINI_API_KEY", "test-key"):
-                with patch("chat.services.gemini_service.genai.Client"):
+                with patch("app.providers.gemini.genai.Client"):
                     service = AIServiceFactory.create_service()
                     assert isinstance(service, GeminiService)
 
     def test_factory_creates_specific_provider(self):
         """Test that factory creates specific provider."""
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
-            with patch("chat.services.gemini_service.genai.Client"):
+            with patch("app.providers.gemini.genai.Client"):
                 service = AIServiceFactory.create_service(provider="gemini")
                 assert isinstance(service, GeminiService)
                 assert service.get_provider_name() == "Gemini"
@@ -64,14 +64,14 @@ class TestGeminiService:
                 GeminiService()
             assert "GEMINI_API_KEY not found" in str(exc_info.value)
 
-    @patch("chat.services.gemini_service.genai.Client")
+    @patch("app.providers.gemini.genai.Client")
     def test_service_initialization_with_api_key(self, mock_client):
         """Test that service initializes with valid API key."""
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):
             GeminiService()
             mock_client.assert_called_once_with(api_key="test-key")
 
-    @patch("chat.services.gemini_service.genai.Client")
+    @patch("app.providers.gemini.genai.Client")
     def test_get_chat_response(self, mock_client):
         """Test that get_chat_response returns AI response."""
         # Setup mock
@@ -88,7 +88,7 @@ class TestGeminiService:
             assert response == "Hello! How can I help you?"
             mock_client_instance.models.generate_content.assert_called_once()
 
-    @patch("chat.services.gemini_service.genai.Client")
+    @patch("app.providers.gemini.genai.Client")
     def test_get_provider_name(self, mock_client):
         """Test that get_provider_name returns correct name."""
         with patch.object(settings, "GEMINI_API_KEY", "test-key"):

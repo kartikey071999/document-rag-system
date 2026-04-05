@@ -1,11 +1,11 @@
 from django.conf import settings
 
-from .base_service import BaseAIService
-from .claude_service import ClaudeService
-from .gemini_service import GeminiService
-from .grok_service import GrokService
-from .openai_service import OpenAIService
-from .perplexity_service import PerplexityService
+from .base import BaseAIService
+from .claude import ClaudeService
+from .gemini import GeminiService
+from .grok import GrokService
+from .openai import OpenAIService
+from .perplexity import PerplexityService
 
 
 class AIServiceFactory:

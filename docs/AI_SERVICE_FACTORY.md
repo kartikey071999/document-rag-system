@@ -9,7 +9,7 @@ The project uses a **Factory Pattern** to support multiple AI providers (Gemini,
 ## Architecture
 
 ```
-chat/services/
+app/services/
 ├── base_service.py          # Abstract base class defining the interface
 ├── factory.py               # Factory class for creating AI service instances
 ├── gemini_service.py        # Google Gemini implementation
@@ -24,7 +24,7 @@ chat/services/
 ### Basic Usage
 
 ```python
-from chat.services import AIServiceFactory
+from app.services import AIServiceFactory
 
 # Create service using default provider from settings
 service = AIServiceFactory.create_service()
@@ -98,7 +98,7 @@ pip install anthropic
 You can register custom AI providers:
 
 ```python
-from chat.services import AIServiceFactory, BaseAIService
+from app.services import AIServiceFactory, BaseAIService
 
 class MyCustomAI(BaseAIService):
     def __init__(self, api_key: str = None):
@@ -167,12 +167,12 @@ The factory provides clear error messages:
 
 ## Testing
 
-Tests are provided in `chat/test_services.py`:
+Tests are provided in `tests/test_services.py`:
 
 ```bash
 # Run all service tests
-pytest chat/test_services.py -v
+pytest tests/test_services.py -v
 
 # Run specific test
-pytest chat/test_services.py::TestAIServiceFactory -v
+pytest tests/test_services.py::TestAIServiceFactory -v
 ```

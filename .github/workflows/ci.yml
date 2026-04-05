@@ -93,16 +93,16 @@ jobs:
           
           # Check for essential directories
           test -d config || { echo "❌ config/ directory not found"; exit 1; }
-          test -d chat || { echo "❌ chat/ directory not found"; exit 1; }
-          test -d chat/services || { echo "❌ chat/services/ directory not found"; exit 1; }
-          test -d chat/templates || { echo "❌ chat/templates/ directory not found"; exit 1; }
+          test -d app || { echo "❌ app/ directory not found"; exit 1; }
+          test -d app/providers || { echo "❌ app/providers/ directory not found"; exit 1; }
+          test -d app/templates || { echo "❌ app/templates/ directory not found"; exit 1; }
           
           # Check for Django files
           test -f config/settings.py || { echo "❌ config/settings.py not found"; exit 1; }
           test -f config/urls.py || { echo "❌ config/urls.py not found"; exit 1; }
-          test -f chat/views.py || { echo "❌ chat/views.py not found"; exit 1; }
-          test -f chat/urls.py || { echo "❌ chat/urls.py not found"; exit 1; }
-          test -f chat/services/gemini_service.py || { echo "❌ chat/services/gemini_service.py not found"; exit 1; }
+          test -f app/api/routes/chat.py || { echo "❌ app/api/routes/chat.py not found"; exit 1; }
+          test -f app/api/urls.py || { echo "❌ app/api/urls.py not found"; exit 1; }
+          test -f app/providers/gemini.py || { echo "❌ app/providers/gemini.py not found"; exit 1; }
           
           echo "✅ All required files and directories exist"
       
@@ -110,15 +110,15 @@ jobs:
         run: |
           echo "Verifying service layer architecture..."
           
-          # Check that service imports exist in views
-          if ! grep -q "from.*services" chat/views.py; then
-            echo "❌ Views should import from services layer"
+          # Check that service imports exist in routes
+          if ! grep -q "from.*providers" app/api/routes/chat.py; then
+            echo "❌ Routes should import from providers layer"
             exit 1
           fi
           
           # Check that GeminiService exists
-          if ! grep -q "class GeminiService" chat/services/gemini_service.py; then
-            echo "❌ GeminiService class not found in service layer"
+          if ! grep -q "class GeminiService" app/providers/gemini.py; then
+            echo "❌ GeminiService class not found in providers layer"
             exit 1
           fi
           

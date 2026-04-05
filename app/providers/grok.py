@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from .base_service import BaseAIService
+from .base import BaseAIService
 
 
 class GrokService(BaseAIService):
