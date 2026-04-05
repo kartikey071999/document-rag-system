@@ -545,6 +545,7 @@ dependencies = [
     { name = "black" },
     { name = "django" },
     { name = "google-genai" },
+    { name = "pytest" },
     { name = "python-dotenv" },
     { name = "ruff" },
 ]
@@ -585,6 +586,7 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.8.0" },
     { name = "openai", marker = "extra == 'all-providers'", specifier = ">=1.0.0" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0.0" },
+    { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0.0" },
     { name = "pytest-django", marker = "extra == 'dev'", specifier = ">=4.8.0" },

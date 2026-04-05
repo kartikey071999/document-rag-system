@@ -7,7 +7,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 # Create a test .env file if it doesn't exist
-base_dir = Path(__file__).resolve().parent
+base_dir = Path(__file__).resolve().parent.parent
 env_file = base_dir / ".env"
 if not env_file.exists():
     with open(env_file, "w") as f:
