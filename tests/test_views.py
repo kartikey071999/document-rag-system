@@ -10,7 +10,6 @@ def client():
 
 @pytest.mark.django_db
 class TestChatViews:
-
     def test_chat_view_loads(self, client):
         response = client.get(reverse("chat:chat"))
         assert response.status_code == 200

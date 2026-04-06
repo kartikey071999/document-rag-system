@@ -7,7 +7,6 @@ from app.providers import AIProvider, AIServiceFactory, BaseAIService, GeminiSer
 
 
 class TestAIServiceFactory:
-
     def test_factory_creates_default_service(self):
         with patch.object(settings, "AI_PROVIDER", AIProvider.GEMINI):
             with patch.object(settings, "GEMINI_API_KEY", "test-key"):
@@ -49,7 +48,6 @@ class TestAIServiceFactory:
 
 
 class TestGeminiService:
-
     def test_service_initialization_without_api_key(self):
         with patch.object(settings, "GEMINI_API_KEY", ""):
             with pytest.raises(ValueError) as exc_info:

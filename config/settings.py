@@ -87,6 +87,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")

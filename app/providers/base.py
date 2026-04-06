@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class BaseAIService(ABC):
-
     @abstractmethod
-    def get_chat_response(self, user_message: str, system_prompt: str = None) -> str:
+    def get_chat_response(
+        self, user_message: str, system_prompt: str = None, filename: str = None
+    ) -> str:
         pass
 
     @abstractmethod

@@ -10,7 +10,6 @@ from .perplexity import PerplexityService
 
 
 class AIServiceFactory:
-
     _services: dict[AIProvider, type[BaseAIService]] = {
         AIProvider.GEMINI: GeminiService,
         AIProvider.OPENAI: OpenAIService,
@@ -20,7 +19,9 @@ class AIServiceFactory:
     }
 
     @classmethod
-    def create_service(cls, provider: AIProvider | str = None, model: str = None) -> BaseAIService:
+    def create_service(
+        cls, provider: AIProvider | str = None, model: str = None
+    ) -> BaseAIService:
         """Create and return an AI service instance for the given provider."""
         if provider is None:
             provider = getattr(settings, "AI_PROVIDER", AIProvider.GEMINI)
@@ -50,7 +51,9 @@ class AIServiceFactory:
         return list(cls._services.keys())
 
     @classmethod
-    def register_provider(cls, name: AIProvider | str, service_class: type[BaseAIService]):
+    def register_provider(
+        cls, name: AIProvider | str, service_class: type[BaseAIService]
+    ):
         """Register a new AI service provider."""
         if not issubclass(service_class, BaseAIService):
             raise TypeError(f"{service_class.__name__} must inherit from BaseAIService")
