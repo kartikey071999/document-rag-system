@@ -169,6 +169,9 @@ dmypy.json
 .pytype/
 .vscode/
 
+# Media uploads
+media/
+
 # Cython debug symbols
 cython_debug/
 

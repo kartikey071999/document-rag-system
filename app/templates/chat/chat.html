@@ -337,6 +337,86 @@
         .send-button:active {
             transform: translateY(0);
         }
+
+        /* File Upload */
+        .file-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 16px;
+            background: #0f141a;
+            border-top: 1px solid #1f2933;
+        }
+
+        .file-upload-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #8b949e;
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 13px;
+            transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .file-upload-btn:hover {
+            color: #e6edf3;
+            border-color: #1f6feb;
+        }
+
+        .file-select {
+            flex: 1;
+            padding: 6px 10px;
+            background: #0b0f14;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 13px;
+        }
+
+        .file-select:focus {
+            outline: none;
+            border-color: #1f6feb;
+        }
+
+        .file-clear-btn {
+            background: none;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #8b949e;
+            cursor: pointer;
+            padding: 6px 8px;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .file-clear-btn:hover {
+            color: #ff7b72;
+        }
+
+        .upload-status {
+            font-size: 12px;
+            color: #3fb950;
+            display: none;
+        }
+
+        .upload-status.active {
+            display: inline;
+        }
+
+        .selected-file-badge {
+            font-size: 11px;
+            color: #1f6feb;
+            background: rgba(31, 111, 235, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .selected-file-badge.active {
+            display: inline;
+        }
     </style>
 </head>
 
@@ -385,9 +465,22 @@
             </div>
         </div>
 
+        <div class="file-bar">
+            <input type="file" id="fileInput" style="display:none">
+            <button type="button" class="file-upload-btn" id="uploadBtn" title="Upload a file">&#128206; Upload</button>
+            <select class="file-select" id="fileSelect">
+                <option value="">No file selected</option>
+            </select>
+            <button type="button" class="file-clear-btn" id="fileClearBtn" title="Clear selection">&times;</button>
+            <span class="upload-status" id="uploadStatus">Uploaded!</span>
+        </div>
+
         <div class="input-container">
             <div class="error-message" id="errorMessage"></div>
             <div class="loading" id="loading">AI is thinking...</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span class="selected-file-badge" id="selectedFileBadge"></span>
+            </div>
             <form class="input-form" id="chatForm">
                 {% csrf_token %}
                 <input type="text" class="message-input" id="messageInput" placeholder="Type your message here..."
@@ -413,8 +506,96 @@
         const modelSelect = document.getElementById('modelSelect');
         const systemPromptInput = document.getElementById('systemPrompt');
 
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileSelect = document.getElementById('fileSelect');
+        const fileClearBtn = document.getElementById('fileClearBtn');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const selectedFileBadge = document.getElementById('selectedFileBadge');
+
         let providersData = {};
         let settings = { provider: 'gemini', model: '', systemPrompt: '' };
+
+        // --- File Upload ---
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            try {
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = '⏳ Uploading...';
+                const response = await fetch('{% url "chat:upload_file" %}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    uploadStatus.classList.add('active');
+                    setTimeout(() => uploadStatus.classList.remove('active'), 2000);
+                    await loadFiles();
+                    // Auto-select the just-uploaded file
+                    for (const opt of fileSelect.options) {
+                        if (opt.value === data.filename) {
+                            fileSelect.value = data.filename;
+                            updateFileBadge();
+                            break;
+                        }
+                    }
+                } else {
+                    showError(data.error || 'Upload failed');
+                }
+            } catch (err) {
+                showError('Upload failed. Please try again.');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '&#128206; Upload';
+                fileInput.value = '';
+            }
+        });
+
+        fileClearBtn.addEventListener('click', () => {
+            fileSelect.value = '';
+            updateFileBadge();
+        });
+
+        fileSelect.addEventListener('change', updateFileBadge);
+
+        function updateFileBadge() {
+            const selected = fileSelect.value;
+            if (selected) {
+                selectedFileBadge.textContent = '📎 ' + selected;
+                selectedFileBadge.classList.add('active');
+            } else {
+                selectedFileBadge.classList.remove('active');
+            }
+        }
+
+        async function loadFiles() {
+            try {
+                const response = await fetch('{% url "chat:list_files" %}');
+                const data = await response.json();
+                const currentVal = fileSelect.value;
+                fileSelect.innerHTML = '<option value="">No file selected</option>';
+                for (const f of data.files) {
+                    const opt = document.createElement('option');
+                    opt.value = f.filename;
+                    opt.textContent = `${f.filename} (${f.category})`;
+                    fileSelect.appendChild(opt);
+                }
+                if (currentVal) fileSelect.value = currentVal;
+                updateFileBadge();
+            } catch {
+                // silently ignore
+            }
+        }
+
+        // --- Providers ---
 
         async function loadProviders() {
             try {
@@ -540,6 +721,7 @@
                 if (settings.provider) formData.append('provider', settings.provider);
                 if (settings.model) formData.append('model', settings.model);
                 if (settings.systemPrompt) formData.append('system_prompt', settings.systemPrompt);
+                if (fileSelect.value) formData.append('selected_file', fileSelect.value);
 
                 const response = await fetch('{% url "chat:send_message" %}', {
                     method: 'POST',
@@ -564,6 +746,7 @@
 
         messageInput.focus();
         loadProviders();
+        loadFiles();
     </script>
 </body>
 
