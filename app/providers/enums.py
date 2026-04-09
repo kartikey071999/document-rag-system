@@ -7,6 +7,14 @@ class AIProvider(StrEnum):
     CLAUDE = "claude"
     PERPLEXITY = "perplexity"
     GROK = "grok"
+    NVIDIA = "nvidia"
+    GROQ = "groq"
+
+
+class ModelCapability(StrEnum):
+    CHAT = "chat"
+    TRANSCRIPTION = "transcription"
+    TTS = "text-to-speech"
 
 
 class GeminiModel(StrEnum):
@@ -43,10 +51,46 @@ class PerplexityModel(StrEnum):
     SONAR_HUGE = "llama-3.1-sonar-huge-128k-online"
 
 
+class NvidiaModel(StrEnum):
+    NEMOTRON_3_NANO = "nvidia/nemotron-3-nano-30b-a3b"
+
+
+class GroqChatModel(StrEnum):
+    LLAMA_3_3_70B = "llama-3.3-70b-versatile"
+    LLAMA_3_1_8B = "llama-3.1-8b-instant"
+    LLAMA_4_SCOUT = "meta-llama/llama-4-scout-17b-16e-instruct"
+    QWEN3_32B = "qwen/qwen3-32b"
+    KIMI_K2 = "moonshotai/kimi-k2-instruct"
+    KIMI_K2_0905 = "moonshotai/kimi-k2-instruct-0905"
+    COMPOUND = "groq/compound"
+    COMPOUND_MINI = "groq/compound-mini"
+    GPT_OSS_120B = "openai/gpt-oss-120b"
+    GPT_OSS_20B = "openai/gpt-oss-20b"
+    ALLAM_2_7B = "allam-2-7b"
+
+
+class GroqTranscriptionModel(StrEnum):
+    WHISPER_LARGE_V3 = "whisper-large-v3"
+    WHISPER_LARGE_V3_TURBO = "whisper-large-v3-turbo"
+
+
+class GroqTTSModel(StrEnum):
+    ORPHEUS_ENGLISH = "canopylabs/orpheus-v1-english"
+    ORPHEUS_ARABIC_SAUDI = "canopylabs/orpheus-arabic-saudi"
+
+
+class GroqGuardModel(StrEnum):
+    PROMPT_GUARD_22M = "meta-llama/llama-prompt-guard-2-22m"
+    PROMPT_GUARD_86M = "meta-llama/llama-prompt-guard-2-86m"
+    SAFEGUARD_20B = "openai/gpt-oss-safeguard-20b"
+
+
 PROVIDER_MODELS: dict[AIProvider, type[StrEnum]] = {
     AIProvider.GEMINI: GeminiModel,
     AIProvider.OPENAI: OpenAIModel,
     AIProvider.CLAUDE: ClaudeModel,
     AIProvider.GROK: GrokModel,
     AIProvider.PERPLEXITY: PerplexityModel,
+    AIProvider.NVIDIA: NvidiaModel,
+    AIProvider.GROQ: GroqChatModel,
 }

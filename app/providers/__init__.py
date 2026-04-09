@@ -5,12 +5,20 @@ from .enums import (
     ClaudeModel,
     GeminiModel,
     GrokModel,
+    GroqChatModel,
+    GroqGuardModel,
+    GroqTTSModel,
+    GroqTranscriptionModel,
+    ModelCapability,
+    NvidiaModel,
     OpenAIModel,
     PerplexityModel,
 )
 from .factory import AIServiceFactory
 from .gemini import GeminiService
 from .grok import GrokService
+from .groq import GroqService
+from .nvidia import NvidiaService
 from .openai import OpenAIService
 from .perplexity import PerplexityService
 
@@ -24,6 +32,14 @@ __all__ = [
     "GeminiService",
     "GrokModel",
     "GrokService",
+    "GroqChatModel",
+    "GroqGuardModel",
+    "GroqService",
+    "GroqTTSModel",
+    "GroqTranscriptionModel",
+    "ModelCapability",
+    "NvidiaModel",
+    "NvidiaService",
     "OpenAIModel",
     "OpenAIService",
     "PerplexityModel",

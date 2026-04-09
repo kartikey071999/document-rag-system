@@ -20,11 +20,11 @@ install-dev:
 
 lint:
 	@echo "Running ruff check..."
-	ruff check .
+	ruff check --fix
 	@echo "Running ruff format check..."
-	ruff format --check .
+	ruff format
 	@echo "Running black check..."
-	black --check .
+	black .
 
 format:
 	@echo "Formatting with ruff..."

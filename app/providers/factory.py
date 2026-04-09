@@ -5,6 +5,8 @@ from .claude import ClaudeService
 from .enums import AIProvider
 from .gemini import GeminiService
 from .grok import GrokService
+from .groq import GroqService
+from .nvidia import NvidiaService
 from .openai import OpenAIService
 from .perplexity import PerplexityService
 
@@ -16,6 +18,8 @@ class AIServiceFactory:
         AIProvider.CLAUDE: ClaudeService,
         AIProvider.PERPLEXITY: PerplexityService,
         AIProvider.GROK: GrokService,
+        AIProvider.NVIDIA: NvidiaService,
+        AIProvider.GROQ: GroqService,
     }
 
     @classmethod
@@ -24,7 +28,7 @@ class AIServiceFactory:
     ) -> BaseAIService:
         """Create and return an AI service instance for the given provider."""
         if provider is None:
-            provider = getattr(settings, "AI_PROVIDER", AIProvider.GEMINI)
+            provider = getattr(settings, "AI_PROVIDER", AIProvider.NVIDIA)
 
         if isinstance(provider, str):
             try:
